@@ -52,17 +52,17 @@ public class OfferList {
 //step -1 :Open Offers list page and verify filter panel and offers list container are visible
         Locator FilterPanel = page.locator(".filters.ng-star-inserted");
         assertThat(FilterPanel).isVisible();
-    //assertThat(Page page) - ამოწმებს გვერდს, URL, გვერდზე ტექსტის ხილვადობა
-    //assertThat(Locator locator) - ამოწმებს ელემენტს, მაგ. .isVisible() .isHidden() .hasText("...") .isChecked()
-    //assertThat(APIResponse response) — API-ს შემოწმება, მაგ. .isOK() ან .hasStatus(404)
+        //assertThat(Page page) - ამოწმებს გვერდს, URL, გვერდზე ტექსტის ხილვადობა
+        //assertThat(Locator locator) - ამოწმებს ელემენტს, მაგ. .isVisible() .isHidden() .hasText("...") .isChecked()
+        //assertThat(APIResponse response) — API-ს შემოწმება, მაგ. .isOK() ან .hasStatus(404)
         System.out.println("ფილტრების პანელო ხილვადია");
         Locator OfferList = page.locator(".marketing__cards-list.ng-star-inserted");
         assertThat(OfferList).isVisible();
         System.out.println("ყველა შეთავაზება ხილვადია");
 
 //step - 2: Select filter: Payment system → Mastercard
-        Locator MastercardCheckbox= page.locator(".filter-item__label")
-             .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" მასტერქარდი | MasterCard", Pattern.CASE_INSENSITIVE)));
+        Locator MastercardCheckbox = page.locator(".filter-item__label")
+                .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" მასტერქარდი | MasterCard", Pattern.CASE_INSENSITIVE)));
         //Pattern.compile იმიტომ ვიყენებ რომ ტექსტი სფეისებით წერია, ამ ფუნქციით სფეისებსაც უგულვეყოფს კოდი და დიდ/პატარა ასოებსაც, იმ შემთხვევაში თუ შეიცვალა მასტერქარდის ტექსტი
         MastercardCheckbox.scrollIntoViewIfNeeded();
         MastercardCheckbox.click();
@@ -71,47 +71,57 @@ public class OfferList {
         page.evaluate("window.scrollTo(0, 0)"); //ამის საშუალებით გაფილტრული ინფორმაციის ფეიჯი თავში აისქროლება
 
 //Step-3 :Validate that an empty state is shown (e.g., 'No offers found') OR results count is 0
-     //იმისთვის რომ შედეგი ვერ ვიპოვოთ, საჭიროა მოვნიშნოთ მასტერქარდი და სხვა სცეპიფიკური გასაფილტრი(მაგ პარტნიორების შეთავაზება) რაც მოგვცემს შედეგს-0
+        //იმისთვის რომ შედეგი ვერ ვიპოვოთ, საჭიროა მოვნიშნოთ მასტერქარდი და სხვა სცეპიფიკური გასაფილტრი(მაგ პარტნიორების შეთავაზება) რაც მოგვცემს შედეგს-0
         Locator ParentOffer = page.locator(".filter-item__label")
                 .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" პარტნიორების შეთავაზება | Partner Offers", Pattern.CASE_INSENSITIVE)));
         ParentOffer.scrollIntoViewIfNeeded();
+        page.waitForTimeout(2000);
         ParentOffer.click();
         System.out.println("Parent Offers ფილტრი წარმატებით მოინიშნა.");
         page.evaluate("window.scrollTo(0, 0)"); //ნიშნავს საიტის თავში ასქროლვას, იწერება მაშინ როცა ჩექის მოქმედება დასრულდა და შემოწმებას სანამ გაივლის მანამდე უნდა ჩაისვას
+        page.waitForTimeout(2000);
         assertThat(ParentOffer.locator("input")).isChecked();
         Locator emptyStateMessage = page.locator(".offers__empty-state");
         assertThat(emptyStateMessage).isVisible();
         assertThat(emptyStateMessage).hasText(Pattern.compile(" შეთავაზებები არ მოიძებნა | Offer wasn't found ", Pattern.CASE_INSENSITIVE)); //ვამოწმებ რომ ხილვადობოს მხრივ, ნამდვილად ხილვადია
 
 //Step-4: Validate that no offer cards are displayed in the list/grid- ეკრანზე არცერთი შეთავაზების ქარდი აღარ არსებობს
-        Locator OfferCards = page.locator(".marketing__cards-list.offer-card");
+        Locator OfferCards = page.locator(".marketing__cards-list .offer-card");
         //marketing__cards-list.offer-card"ნიშნავს: იპოვე .offer-card ელემენტები ამ სიის შიგნით - იმიტომ დავადე რომ კონტეინერი სულ იარსებებს და სისტემა მას 1-ად ჩათვლის, რომ აზრი ჰქონდეს ამ ჩეკს მე ვეუბნები რომ კონტეინერში იპოვოს ქარდები და არა ქარდების კონტეინერი იპოვოს
         assertThat(OfferCards).hasCount(0);
-        int actualCount= OfferCards.count();
-        if (actualCount==0) {
-                System.out.println("ვალიდაცია წარმატებულია: სიაში 0 შეთავაზებაა.");
+        int actualCount = OfferCards.count();
+        if (actualCount == 0) {
+            System.out.println("ვალიდაცია წარმატებულია: სიაში 0 შეთავაზებაა.");
         }
+
 //Step -5: Click Clear / Reset filters and verify offers list is populated again (at least 1 offer card visible)
-        Locator clearBtn = page.locator("button:has-text('გასუფთავება'), button:has-text('Clear')").first();;
-        clearBtn.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
-        clearBtn.scrollIntoViewIfNeeded();
-        clearBtn.focus();
-        clearBtn.click(new Locator.ClickOptions().setForce(true));
-        System.out.println("ფილტრები გასუფთავდა");
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.evaluate("window.scrollTo(0, 0)");
-        page.waitForTimeout(1000);
-        Locator offerCards = page.locator(".offer-card"); //- აქ გავიჭედე და გავასწორო...ვამოწმებთ რომ ქარდების სია კვლავ შეივსო და 1 ბარათი მაინც ჩანს
-        offerCards.first().waitFor(new Locator.WaitForOptions()
-                .setState(WaitForSelectorState.VISIBLE)
-                .setTimeout(15000));
-        int currentCount = offerCards.count();
-        if (currentCount > 0) {
-            System.out.println("ვალიდაცია წარმატებულია: სია კვლავ შეივსო. ნაპოვნია " + currentCount + " ბარათი.");
-        } else {
-            System.out.println("შეცდომა: ფილტრების გასუფთავების შემდეგ სია კვლავ ცარიელია.");
+        Locator allClearButtons = page.locator("button:has-text('გასუფთავება'), button:has-text('Clear')");
+        allClearButtons.first().waitFor();
+        int buttonsCount = page.locator("button:has-text('გასუფთავება'), button:has-text('Clear')").count();
+        System.out.println("ნაპოვნია " + buttonsCount + " გასუფთავების ღილაკი.");
+        // სათითაოდ ვაჭერთ თითოეულს
+        for (int i = 0; i < buttonsCount; i++) {
+            // ვიყენებთ nth(i)-ს, რომ რიგრიგობით მივწვდეთ ყველა ღილაკს
+            Locator currentBtn = page.locator("button:has-text('გასუფთავება'), button:has-text('Clear')").first();
+            currentBtn.scrollIntoViewIfNeeded();
+            currentBtn.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+            currentBtn.click(new Locator.ClickOptions().setForce(true));
+            if (currentBtn.isVisible()) {
+                currentBtn.scrollIntoViewIfNeeded();
+                currentBtn.click(new Locator.ClickOptions().setForce(true));
+                System.out.println((i + 1) + "-ე ფილტრი გასუფთავდა.");
+                page.waitForTimeout(1000);
+            }
+            page.evaluate("window.scrollTo(0, 0)");
+            page.waitForLoadState(LoadState.NETWORKIDLE); //დაიცადე მანამ, სანამ ინტერნეტში მოთხოვნების გაგზავნა-მიღება არ შეწყდება
+            page.evaluate("window.scrollBy(0, 300)"); //ოდნავ ჩამოვსქროლე რომ ოფერების გვერდი გააქტიურებულიყო :(
+            page.waitForTimeout(2000);
+            Locator cardsAfterReset = page.locator(".marketing__cards-list .offer-card"); // ეს მაფეილებს
+            cardsAfterReset.first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+            Assert.assertTrue(cardsAfterReset.count() > 0, "შეცდომა: ფილტრების გასუფთავების შემდეგ სია ცარიელია.");
+            int currentCount = cardsAfterReset.count();
         }
-}
+    }
 }
 
 
