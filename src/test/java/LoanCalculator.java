@@ -29,98 +29,74 @@ public class LoanCalculator {
     }
 
     @Test
-    public void testLoanCalculator() {
-        // ნაბიჯი 1: საწყის გვერდზე გადასვლა (აუცილებელია მოქმედებების დასაწყებად)
-        page.navigate("https://tbcbank.ge");
-        // ნაბიჯი 1.5: Cookies-ზე დათანხმება
+// Step -1 -- Verify page and calculator section load successfully
+    public void testLoanCalculatorFlow() {
+            // Verify page load - პირდაპირ გადავდივართ დავალების URL-ზე
+        page.navigate("https://tbcbank.ge/ka/loans/consumer-loan/digital");
+
+            // ნაბიჯი 1.5: Cookies-ზე დათანხმება
         Locator acceptCookies = page.locator(".primary.state-initial.size-s")
-                .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" თანხმობა |Accept", Pattern.CASE_INSENSITIVE)));
+                    .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" თანხმობა |Accept", Pattern.CASE_INSENSITIVE)));
 
-        try {
-            // ველოდებით მაქსიმუმ 5 წამს, რომ ღილაკი გამოჩნდეს
-            acceptCookies.waitFor(new Locator.WaitForOptions().setTimeout(5000));
+            try {
+                // ველოდებით მაქსიმუმ 5 წამს, რომ ღილაკი გამოჩნდეს
+                acceptCookies.waitFor(new Locator.WaitForOptions().setTimeout(5000));
 
-            if (acceptCookies.isVisible()) {
-                acceptCookies.click();
-                System.out.println("Cookies-ზე დათანხმება წარმატებით შესრულდა.");
+                if (acceptCookies.isVisible()) {
+                    acceptCookies.click();
+                    System.out.println("Cookies-ზე დათანხმება წარმატებით შესრულდა.");
+                }
+            } catch (Exception e) {
+                // თუ 5 წამში არ გამოჩნდა (მაგალითად, უკვე დათანხმებულია), ტესტი არ გაფეილდეს
+                System.out.println("Cookies-ის ფანჯარა არ ამოხტა.");
             }
-        } catch (Exception e) {
-            // თუ 5 წამში არ გამოჩნდა (მაგალითად, უკვე დათანხმებულია), ტესტი არ გაფეილდეს
-            System.out.println("Cookies-ის ფანჯარა არ ამოხტა.");
-        }
+            // ვამოწმებთ კალკულატორის სექციის არსებობას
 
-        //ნაბიჯი 2: ჩამოსქროლვა და "გამოთვალე სესხის" ბარათზე დაჭერა
-        System.out.println("გვერდის სათაურია: გამოთვალე სესხი");
-        Locator loanCard = page.locator(".tbcx-pw-card__title") // ჯერ ვეძებთ კლასით
-                .filter(new Locator.FilterOptions().setHasText("გამოთვალე სესხი")); // შემდეგ ვფილტრავთ ტექსტით
-        loanCard.scrollIntoViewIfNeeded();//ავტომატურად ჩამოსქროლავს ელემენტამდე
-        loanCard.click();
-                // ნაბიჯი 3: "სესხის მოთხოვნა" ღილაკზე დაჭერა
-        System.out.println("სესხის მოთხოვნა");
-        Locator requestButton = page.locator("button.primary.state-initial.size-m").first();
-        requestButton.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
-        requestButton.click(); // დაველოდოთ სანამ ღილაკი ხილვადი გახდება
+        Locator calculatorSection = page.locator("tbcx-pw-calculator");
+        calculatorSection.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+        calculatorSection.scrollIntoViewIfNeeded();
+        System.out.println("ნაბიჯი 1: გვერდი და კალკულატორი წარმატებით ჩაიტვირთა.");
 
-               // ნაბიჯი 4: სესხის კალკულატორის გვერდზე გადასვლა
-        page.navigate("https://tbccredit.ge/?source_caller=ui&shortlink=ularj23r&c=Acq_FCL_7_tbccredit.ge_Prompt_7&pid=tbccredit.ge&deep_link_value=offers%2F81621&af_xp=custom");
-              // ნაბიჯი 4.5: Cookies-ზე დათანხმება (ID-ით და ტექსტის ფილტრით)
-        acceptCookies = page.locator("#acceptAllCookies")
-                .filter(new Locator.FilterOptions().setHasText(Pattern.compile("თანხმობა|Accept|Agree", Pattern.CASE_INSENSITIVE)));
-
-        try {
-            // ველოდებით მაქსიმუმ 5 წამს, რადგან ქუქი შეიძლება წამიერი დაგვიანებით ამოხტეს
-            acceptCookies.waitFor(new Locator.WaitForOptions().setTimeout(5000));
-            if (acceptCookies.isVisible()) {
-                acceptCookies.click();
-                System.out.println("Cookies-ზე დათანხმება შესრულდა.");
-            }
-        } catch (Exception e) {
-            // თუ ქუქი არ გამოჩნდა, ტესტი არ გაფეილდეს და გაგრძელდეს
-            System.out.println("Cookies-ის ფანჯარა არ ამოხტა ან უკვე დათანხმებულია.");
-        }
-           // ნაბიჯი 5: ვამოწმებთ, რომ გვერდი და კალკულატორის სექცია ჩაიტვირთა
-        Assert.assertTrue(
-                page.isVisible("text=სესხის კალკულატორი") || page.isVisible(".h3.m-b-3"),
-                "შეცდომა: მომხმარებელი არ გადავიდა კალკულატორის გვერდზე!"
-        );
-         // ნაბიჯი 7: ვპოულობთ "ეფექტური პროცენტის" ტექსტს და ვსქროლავთ მასთან
-        Locator effectiveRateLabel = page.locator("#standard-calculator").locator("div.title:has-text('ეფექტური პროცენტი')");
-        effectiveRateLabel.scrollIntoViewIfNeeded(); //'ეფექტური პროცენტი' ელემენტი ორ ადგილას იუო გამოყენებული, რის გამოც დაკონკრეტება მომიწია
-
-        // ნაბიჯი 8: თანხის ჩაწერა (3000)
-        // fill() მეთოდი ავტომატურად ასუფთავებს გრაფას და წერს ახალს
-        Locator amountInput = page.locator("#standard-calculator-amount");
+//Step - 2. --Set loan amount to 3000 GEL--
+            // fill() მეთოდი ავტომატურად ასუფთავებს გრაფას და წერს ახალს
+        // იპოვე ყველა input, რომლის ტიპია number და აიღე პირველივე
+        Locator amountInput = page.locator("input[type='number']").first();
+        amountInput.fill("3000");
         System.out.println("ჩაიწერა თანხა: 3000");
 
-       //ნაბიჯი 9. ვადის (თვის) გრაფის პოვნა და ჩაწერა (48)
-        Locator periodInput = page.locator("#standard-calculator-period");
+//Step -3 ----Set loan duration to 48 months-----
+        Locator periodInput = page.locator("input[type='number']").nth(1);
         periodInput.fill("48");
         System.out.println("ჩაიწერა ვადა: 48");
-
 // პატარა პაუზა, რომ დაინახოთ ცვლილება (სურვილისამებრ)
         page.waitForTimeout(10000);
 
-// ნაბიჯი 10. რიცხვების შესაყვანი გრაფის ცვლილება (3000 -> 777 და 48 -> 33)
+//Step 4. ----- Verify calculated values are displayed (მაგალითად, ყოველთვიური გადასახადი)
+        Locator monthlyPayment = page.locator(".tbcx-pw-calculated-info__number--new").first();
+        monthlyPayment.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+        //ვამოწმებთ, რომ ტექსტი არ არის ცარიელი და შეიცავს რიცხვებს/ლარის სიმბოლოს
+        assertThat(monthlyPayment).not().isEmpty();
+        String firstResult = monthlyPayment.innerText();
+        System.out.println("ნაბიჯი 4: გამოთვლილი ყოველთვიური შენატანი გამოჩნდა: " + firstResult);
+
+// Step 5: ---- Change amount or duration and verify results update ----
         amountInput.fill("777");
         periodInput.fill("33");
+        page.waitForTimeout(1000);
         System.out.println("მნიშვნელობები განახლდა: 777 ლარი, 33 თვე");
         // საბოლოო შემოწმება (Assertion)
-// თუ მნიშვნელობა არ იქნება 777 ან 33, ტესტი აქ გაჩერდება და დაწერს შეცდომას
+        // თუ მნიშვნელობა არ იქნება 777 ან 33, ტესტი აქ გაჩერდება და დაწერს შეცდომას
         assertThat(amountInput).hasValue("777");
         assertThat(periodInput).hasValue("33");
-
-        System.out.println("✅ მნიშვნელობები წარმატებით შეიცვალა და დადასტურდა: 777 ლარი, 33 თვე.");
-    }
-
-
-    @AfterClass
-    public static void tearDown() {
-        // რესურსების დახურვა (Cleanup)
-        if (browser != null) {
-            browser.close();
-            playwright.close();
+        System.out.println("მნიშვნელობები წარმატებით შეიცვალა და დადასტურდა: 777 ლარი, 33 თვე.");
+        String secondResult = monthlyPayment.innerText();
+        if (!firstResult.equals(secondResult)) {
+            System.out.println("შედეგი წარმატებით განახლდა: " + secondResult);
+        } else {
+            throw new AssertionError("შეცდომა: მონაცემების შეცვლის მიუხედავად, გამოთვლილი თანხა არ შეიცვალა!");
+        }
+        assertThat(monthlyPayment).containsText(Pattern.compile("[0-9]")); //ამით ვამოწმებ რომ ციფრებს შეიცავს ნამდვილად
         }
     }
-}
 
 
