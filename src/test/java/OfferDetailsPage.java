@@ -50,23 +50,25 @@ public class OfferDetailsPage {
             Locator offerdetpage = page.locator("span.ng-star-inserted",
                     new Page.LocatorOptions().setHasText("Remittance Fee Calculation")); //არასწორი კოდია - აქ დასაწერი მაქვს თუ ქუქი არ გახსნა, მაშინ სად უნდა გადამისამართდეს იუზერი? ;დდ
             offerdetpage.click();
-            //ნაბიჯი 1: Verify offer title (H1) is visible // გვერდის მთავარი სათაური ჩვეულებრივ h1 თეგშია
+    //ნაბიჯი 1: ------Verify offer title (H1) is visible // გვერდის მთავარი სათაური ჩვეულებრივ h1 თეგშია -----
             Locator offerTitle = page.locator("h1");
             assertThat(offerTitle).isVisible();
             System.out.println("სათაური ხილვადია: " + offerTitle.innerText());
 
-            // ნაბიჯი 2: Verify main banner/hero section is visible// ვიყენებ .offer-details-image კლასს
+    // ნაბიჯი 2: ------ Verify main banner/hero section is visible// ვიყენებ .offer-details-image კლასს ------
             Locator mainBanner = page.locator(".app-textpage-header__media, .offer-image-container img").first();
             assertThat(mainBanner).isVisible();
             System.out.println("მთავარი ბანერი ხილვადია.");
 
-            // ნაბიჯი 3: Verify discount badge or label is visible
-            Locator discountBadge = page.getByText("ექსტრა შეთავაზება").first();
+    // ნაბიჯი 3: ----- Verify discount badge or label is visible ----
+            Locator discountBadge = page.locator(".tbcx-pw-text-badge.tbcx-pw-text-badge--primary").first();
             assertThat(discountBadge).isVisible();
-            System.out.println("ფასდაკლების ლეიბლი ნაპოვნია.");
+            assertThat(discountBadge).containsText(Pattern.compile(".*დაიბრუნე 30%.*"));
+            System.out.println("ფასდაკლების ლეიბლი ნაპოვნი და ხილვადია.");
 
-            //ნაბიჯი 4:Verify offer description/content section is displayed - ვეძებთ კონტეინერს, რომელიც შეიცავს შეთავაზების დეტალურ ტექსტს
+    //ნაბიჯი 4: ------Verify offer description/content section is displayed---- - ვეძებთ კონტეინერს, რომელიც შეიცავს შეთავაზების დეტალურ ტექსტს
             Locator descriptionSection = page.locator(".offer-details-content, .rich-text").first();
+            descriptionSection.scrollIntoViewIfNeeded();
             assertThat(descriptionSection).isVisible();// ვამოწმებთ, რომ ეს სექცია ხილვადია
             String descriptionText = descriptionSection.innerText(); // დამატებითი შემოწმება: დარწმუნდი, რომ ტექსტი ცარიელი არ არის
 
@@ -76,7 +78,6 @@ public class OfferDetailsPage {
                 System.out.println("აღწერის სექცია ნაპოვნია, მაგრამ ცარიელია!");
             }
 
-//ამ ნაწილში სქროლი გვჭირდებაა? ჯასთ ამოწმებს მარა რა ნაწილსაც შეამოწმებს იმ ნაწილთან ხომ არ უნდა ჩამოისქროლოს?
         }
     }
 }
