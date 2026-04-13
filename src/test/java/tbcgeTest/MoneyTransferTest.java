@@ -1,7 +1,7 @@
+package tbcgeTest;
+
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.WaitForSelectorState;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class MoneyTransfer {
+public class MoneyTransferTest {
     static Playwright playwright;
     static Browser browser;
     static Page page;

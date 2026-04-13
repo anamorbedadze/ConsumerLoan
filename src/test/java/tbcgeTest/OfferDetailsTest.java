@@ -1,7 +1,6 @@
+package tbcgeTest;
+
 import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.WaitForSelectorState;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -10,7 +9,7 @@ import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class OfferDetailsPage {
+public class OfferDetailsTest {
     static Playwright playwright;
     static Browser browser;
     static Page page;
@@ -29,7 +28,7 @@ public class OfferDetailsPage {
     }
 
     @Test
-    public void ClickOfferDetailsPage() {
+    public void ClickOfferDetails() {
         // ნაბიჯი 1: offer pager-ის გვერდზე გადასვლა
         page.navigate("https://tbcbank.ge/ka/offers/all-offers/1o8WOB94RBAZVUFk2uqi5l/extra-offer");
         // ნაბიჯი 1.5: Cookies-ზე დათანხმება
@@ -47,9 +46,9 @@ public class OfferDetailsPage {
         } catch (Exception e) {
             // თუ 5 წამში არ გამოჩნდა (მაგალითად, უკვე დათანხმებულია), ტესტი არ გაფეილდეს
             System.out.println("Cookies-ის ფანჯარა არ ამოხტა.");
-            Locator offerdetpage = page.locator("span.ng-star-inserted",
+            Locator offerdet = page.locator("span.ng-star-inserted",
                     new Page.LocatorOptions().setHasText("Remittance Fee Calculation")); //არასწორი კოდია - აქ დასაწერი მაქვს თუ ქუქი არ გახსნა, მაშინ სად უნდა გადამისამართდეს იუზერი? ;დდ
-            offerdetpage.click();
+            offerdet.click();
     //ნაბიჯი 1: ------Verify offer title (H1) is visible // გვერდის მთავარი სათაური ჩვეულებრივ h1 თეგშია -----
             Locator offerTitle = page.locator("h1");
             assertThat(offerTitle).isVisible();

@@ -1,20 +1,18 @@
+package tbcgeTest;
+
 import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.awt.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static java.awt.SystemColor.text;
 
-public class OfferList {
+public class OfferListTest {
     static Playwright playwright;
     static Browser browser;
     static Page page;
