@@ -68,4 +68,7 @@ public class LoanCalculatorPage {
     public Locator getAmountInput() { return amountInput; }
     public Locator getPeriodInput() { return periodInput; }
     public Locator getMonthlyPaymentLocator() { return monthlyPaymentLabel; }
+    public Locator getCalculatorSection() {
+        return calculatorSection;
+    }
 }

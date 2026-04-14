@@ -13,47 +13,32 @@ import pages.LocationPage;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class LocationTest extends BaseTest { // ვთქვათ BaseTest-ში ხდება setupMobile()
+// package tbcgeTest; (ან სადაც გაქვს ტესტები)
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import steps.LocationSteps;
+
+public class LocationTest extends BaseTest {
+    private LocationSteps locationSteps;
+
+    @BeforeMethod
+    public void setupTest() {
+        // Steps ობიექტის ინიციალიზაცია BaseTest-ის page-ით
+        locationSteps = new LocationSteps(page);
+    }
 
     @Test
     public void openMobVersion() {
-        // გვერდის ინიციალიზაცია
-        page.navigate(Constants.BASE_URL);
-        LocationPage locationPage = new LocationPage(page);
+        // Step 1: ნავიგაცია მისამართებზე და გვერდის ჩატვირთვის ვალიდაცია
+        locationSteps.navigateToLocationsAndVerify();
 
-        // Step 1: ქუქიების მიღება
-        locationPage.acceptCookies();
+        // Step 2: ბანკომატების (ATMs) ინფორმაციის შემოწმება
+        locationSteps.verifyAtmsTabContent();
 
-        // Step 2: ნავიგაცია მისამართებზე
-        locationPage.openAddressesFromMenu();
+        // Step 3: ფილიალების (Branches) სამუშაო საათების შემოწმება
+        locationSteps.verifyBranchesTabContent();
 
-        // Step 3: ვალიდაცია - URL, სათაური და რუკა
-        assertThat(page).hasURL(Pattern.compile(Constants.LOCATION_URL));
-        assertThat(locationPage.getPageHeading()).isVisible();
-
-        locationPage.getMapContainer().waitFor(new Locator.WaitForOptions().setTimeout(Constants.MAP_LOAD_TIMEOUT));
-        assertThat(locationPage.getMapContainer()).isVisible();
-
-        // Step 4 & 5: ბანკომატების ტაბის შემოწმება / ქარდის შემოწმება
-        locationPage.clickAtmsTab();
-        locationPage.scrollToFirstCard();
-        assertThat(locationPage.getFirstAtmAddress()).isVisible();
-        assertThat(locationPage.getFirstCardList()).containsText(
-                Constants.ATM_CARD_TEXT,
-                new LocatorAssertions.ContainsTextOptions().setTimeout(Constants.LOAD_TIMEOUT));
-
-
-
-        // ვბრუნდებით ზემოთ, რომ შემდეგ ტაბს დავაკლიკოთ
-        locationPage.scrollToTop();
-
-        // Step 6 & 7: ფილიალების ტაბის შემოწმება
-        locationPage.clickBranchesTab();
-        locationPage.scrollToFirstCard();
-
-        assertThat(locationPage.getFirstAtmAddress()).isVisible();
-        assertThat(locationPage.getFirstCardList()).containsText(Constants.WORK_HOURS_WEEKLY);
-        assertThat(locationPage.getFirstCardList()).containsText(Constants.WORK_HOURS_SAT);
+        System.out.println("მობაილ ვერსიაში ლოკაციების ფლოუ წარმატებით დასრულდა.");
     }
 }
-//ტესტ აფეილებს და უნდა ჩაიხედოს
