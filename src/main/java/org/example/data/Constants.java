@@ -32,7 +32,7 @@ public class Constants {
                     // --- Consumer Loan Page Timeouts --
     public static final double COOKIE_TIMEOUT = 15000;
     public static final int TBC_CREDIT_COOKIES = 5000;
-    public static final double LOAD_TIMEOUT = 15000;
+    public static final double LOAD_TIMEOUT = 20000;
     public static final int CALC_STABILITY_WAIT = 10000; // 10 წამიანი ლოდინი
     public static final int CALC_SHORT_WAIT = 1000;
     public static final double MAP_LOAD_TIMEOUT = 15000;
@@ -66,6 +66,7 @@ public static final String IPHONE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone 
     public static final String BRANCH_TAB_NAME = "ფილიალები";
     public static final String ATM_CARD_TEXT = "ATM";
     public static final Pattern CALC_DIGIT_PATTERN = Pattern.compile("[0-9]");
+    public static final String MONEY_TRANSFER_NAME = " Ria | MoneyGram | IntelExpress | WesternUnion ";
     public static final String CLEAR_BUTTON_GEO = "გასუფთავება";
     public static final String CLEAR_BUTTON_ENG = "Clear";
 

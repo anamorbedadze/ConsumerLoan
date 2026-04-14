@@ -1,110 +1,66 @@
-package tbcgeTest;
+package tbcgeTest; // შენი ტესტების პაკეტის სახელი
 
-import com.microsoft.playwright.*;
+import basetest.BaseTest;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.WaitForSelectorState;
-import org.testng.annotations.BeforeClass;
+import org.example.data.Constants;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import steps.MoneyTransferSteps;
 
-import java.util.List;
+// import org.example.data.Constants; // თუ URL-იც კონსტანტებში გაიტანე, ეს დაგჭირდება
+
 import java.util.regex.Pattern;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class MoneyTransferTest {
-    static Playwright playwright;
-    static Browser browser;
-    static Page page;
+// ვაკეთებთ extends BaseTest-ს, რათა ბრაუზერი და page ავტომატურად გაიხსნას/დაიხუროს
+public class MoneyTransferTest extends BaseTest {
 
-    @BeforeClass
-    public static void setUp() {
-        playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                .setHeadless(false)
-                .setSlowMo(1000) // 1000 მილიწამი = 1 წამი.ვერ ვასწრებდი ბათონზე დაჭერის პროცესს და ცოტა შევანელე
-                .setArgs(List.of("--start-maximized")));//--start-maximized გამოვიყენე იმიტომ რომ საიტი მაქსიმალურ ზომაზე გაიხსნას (step 1)
+    private MoneyTransferSteps steps;
 
-        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
-                .setViewportSize(null));
-        page = context.newPage();
+    @BeforeMethod
+    public void initSteps() {
+        // BaseTest-დან მემკვიდრეობით მიღებულ 'page' ცვლადს ვაწოდებთ Steps კლასს
+        steps = new MoneyTransferSteps(page);
     }
 
     @Test
-    public void clickTransferFeeTab() {
-        // ნაბიჯი 1: money transfer-ის გვერდზე გადასვლა
-        page.navigate("https://tbcbank.ge/en/other-products/money-transfers");
-        // ნაბიჯი 1.5: Cookies-ზე დათანხმება
-        Locator acceptCookies = page.locator(".primary.state-initial.size-s")
-                .filter(new Locator.FilterOptions().setHasText(Pattern.compile(" თანხმობა | Accept All ", Pattern.CASE_INSENSITIVE)));
+    public void calculateTransferFeeToGreece() {
+        // ნაბიჯი 1: გვერდის გახსნა და Cookies-ზე დათანხმება
+        // შეგიძლია პირდაპირ ლინკი ჩაწერო, ან თუ Constants-ში გაიტანე - Constants.MONEY_TRANSFER_URL
+        steps.openPageAndHandleCookies(Constants.MONEY_TRANSFER_URL);
 
-        try {
-            // ველოდებით მაქსიმუმ 5 წამს, რომ ღილაკი გამოჩნდეს
-            acceptCookies.waitFor(new Locator.WaitForOptions().setTimeout(5000));
-
-            if (acceptCookies.isVisible()) {
-                acceptCookies.click();
-                System.out.println("Cookies-ზე დათანხმება წარმატებით შესრულდა.");
-            }
-        } catch (Exception e) {
-            // თუ 5 წამში არ გამოჩნდა (მაგალითად, უკვე დათანხმებულია), ტესტი არ გაფეილდეს
-            System.out.println("Cookies-ის ფანჯარა არ ამოხტა.");
-            Locator feeTab = page.locator("span.ng-star-inserted");
-        }
-//ნაბიჯი 1 : --- Open Money Transfers page and verify main content is visible ---
-        Locator mainTitle = page.getByText("Quick money transfers").first();
+        // ვალიდაცია 1: ვამოწმებთ, რომ მთავარი სათაური ხილვადია
+        Locator mainTitle = steps.getPage().getMainTitle();
         assertThat(mainTitle).isVisible();
-        System.out.println("გვერდი წარმატებით გაიხსნა.");
+        System.out.println("გვერდი წარმატებით გაიხსნა და მთავარი სათაური გამოჩნდა.");
 
-//ნაბიჯი 2: ---Switch to Remittance Fee Calculation tab - ორივე ტაბს აქვს ერთი და იგივე ინფუთი, რის გამოც პირველ იმფუთს ავსებს ავტომატურად - ეს გასასწორებელი მაქვს და როცა დრო მექნება ჩავასწორებ
-        Locator feeCalcTab = page.getByText("Remittance Fee Calculation").first();
-        feeCalcTab.scrollIntoViewIfNeeded();
-        feeCalcTab.click();
+        // ნაბიჯი 2: ტაბის შეცვლა
+        steps.switchToFeeCalculationTab();
 
-//ნაბიჯი 3: ---------Enter amount: 1000-----------
-        // fill() მეთოდი ავტომატურად ასუფთავებს გრაფას და წერს ახალს
-        Locator amountInput = page.locator(".input-with-label input").first();//რა კლასის აიდიც ავიღე ცოტა გაფუჭებულია,ცვლილების შემთხვევაში უეჭველად შეიცვლება და ტესტს დამიფეილებს. რამდენად სწორი სოლუშენია ასეთ დროს?
-        amountInput.fill("1000");
-        System.out.println("ჩაიწერა თანხა: 1000");
+        // ნაბიჯი 3, 4, 5: მონაცემების შევსება (1000, EUR, Greece)
+        steps.fillTransferDetails("1000", "EUR", "Greece");
 
-//ნაბიჯი 4:------- Select currency: EUR-------
-        page.locator("tbcx-dropdown-selector").first().click(); //აქ მინდა რომ ნებისმიერი ვალუტით დაადროფდაუნოს
-        page.locator(".tbcx-dropdown-popover-item__title").filter(new Locator.FilterOptions().setHasText("EUR")).click();
-        System.out.println("ვალუტა EUR არჩეულია");
+        // ნაბიჯი 6 და 7: შედეგების სექციის მოლოდინი და ვალიდაცია
+        Locator resultSection = steps.getPage().getResultSection();
 
-//ნაბიჯი 5: --------Select country: Greece-----
-        // ქვეყნის დროპდაუნი ჩვეულებრივ მეორეა (nth(1)), რადგან პირველი ვალუტისაა
-        Locator countryDropdown = page.locator("tbcx-dropdown-selector").nth(1);
-        countryDropdown.click();
 
-        // ვეძებთ საბერძნეთს პოპაპში
-        Locator greeceOption = page.locator("div.tbcx-dropdown-popover-item__title:has-text('Greece')");
-        greeceOption.evaluate("el => el.scrollIntoView({ behavior: 'smooth', block: 'center' })");
-        greeceOption.click();
-        System.out.println(" ქვეყანა Greece არჩეულია.");
-        page.waitForTimeout(20000); //ხან იტვირთება და ხან ბევრი დრო სჭირდება, დამაწყდა ნერვები :))
+        resultSection.waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.ATTACHED)
+                .setTimeout(Constants.LOAD_TIMEOUT));
 
-// ნაბიჯი 6: -------------Verify calculation result section appears---
-        // ვპოულობთ მთლიან სექციას, სადაც შედეგები უნდა გამოჩნდეს
-        Locator resultSection = page.locator(".tbcx-pw-money-transfer-fee-calculator__cards").first();
-        resultSection.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(15000));
-        page.waitForTimeout(1000);
-        assertThat(resultSection).isVisible();
-        System.out.println("ვალიდაცია წარმატებულია: შედეგები ჩაიტვირთა და გამოჩნდა.");
-// ნაბიჯი  7: ----- Verify result values are displayed and not empty ---
-        //მინდოდა ლოგოს, საკომისიოს და ტრანსფერის დასახელების მიხედვით გამეჩექა მარა ამ კლასის პოვნას ვერ ასწრებს - .tbcx-pw-card__info // სხვა რაღაც ეფარება და შეგვიძლია ისეთი კოდის დაწერა რომ რამე თუ გეფარება აღარ მოგეფაროს
-
-        Locator resultValue = page.locator(".tbcx-pw-money-transfer-fee-calculator__cards").first();
-        resultValue.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED).setTimeout(10000));
-        assertThat(resultValue).not().isEmpty(); // უბრალოდ ვამოწმებთ, რომ კონტეინერი ცარიელი არაა
-        assertThat(resultValue).containsText(Pattern.compile(" Ria | MoneyGram | IntelExpress | WesternUnion ", Pattern.CASE_INSENSITIVE));
-        assertThat(resultValue).containsText("€"); //საკომისიოს ვალუტის სიმბოლოც მოყვება და კარგი იქნება ამასაც თუ შევამოწმებ
-        assertThat(resultValue).containsText(Pattern.compile("\\d")); //ვამოწმებ რომ მინ ერთი რიცხვი მაინც წერია
+        // შედეგების ვალიდაციები
+        assertThat(resultSection).isVisible(); // სექცია გამოჩნდა
+        assertThat(resultSection).not().isEmpty(); // სექცია ცარიელი არ არის
+        assertThat(resultSection).containsText(Pattern.compile(Constants.MONEY_TRANSFER_NAME, Pattern.CASE_INSENSITIVE));
+        assertThat(resultSection).containsText("€"); // ვალუტის სიმბოლო წერია
+        assertThat(resultSection).containsText(Pattern.compile("\\d")); // მინიმუმ ერთი რიცხვი (თანხა/საკომისიო) წერია
         System.out.println("ვალიდაცია წარმატებულია: მთავარ კონტეინერში შედეგები ნაპოვნია!");
-        //აქ შემეძლო
 
-//ნაბიჯი 8: ----Verify no error message is shown ---
-        //კონკრეტული კლასი ვერ ვიპოვე ერორების, ამიტომ ვტესავ ნებისმიერ ელემენტს, რომელსაც კლასში ეწერება ერორი
-        Locator anyError = page.locator("[class*='error'], [class*='Invalid']").first();
-        assertThat(anyError).isHidden(); // ვამოწმებთ, რომ ასეთი ელემენტი არ არის ხილვადი (Hidden)
+        // ნაბიჯი 8: ერორების არარსებობის შემოწმება
+        Locator anyError = steps.getPage().getAnyError();
+        assertThat(anyError).isHidden(); // ვამოწმებთ, რომ ერორი დამალულია (არ ჩანს)
         System.out.println("ტესტი დასრულებულია წარმატებით: შეცდომები არ დაფიქსირებულა.");
-        }
     }
+}
+//ტესტის უფრო დახვეწა შესაძლებელია, რადგან ბოლოში ისე სწრაფად იხურება, ვიზუალურად ვერაფერს ვერ ვიჭერ
