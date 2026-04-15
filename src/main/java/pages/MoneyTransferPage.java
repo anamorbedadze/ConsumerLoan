@@ -44,7 +44,7 @@ public class MoneyTransferPage {
 
     public void acceptCookiesIfPresent() {
         try {
-            acceptCookiesBtn.waitFor(new Locator.WaitForOptions().setTimeout(Constants.LOAD_TIMEOUT));
+            acceptCookiesBtn.waitFor(new Locator.WaitForOptions().setTimeout(5000));
             if (acceptCookiesBtn.isVisible()) {
                 acceptCookiesBtn.click();
             }
