@@ -4,6 +4,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import org.example.data.Constants;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class MoneyTransferPage {
@@ -18,6 +19,21 @@ public class MoneyTransferPage {
     private final Locator countryDropdown;
     private final Locator resultSection;
     private final Locator anyError;
+
+    // 🟢 ახალი მეთოდი API სისტემების სახელებისოსთვის
+    public List<String> getAllSystemNames() {
+            return page.locator(".tbcx-pw-card__logo-and-text-info").allTextContents();
+    }
+    // კონკრეტული სისტემის ვალუტების ტექსტის წამოღება (მაგ: "currency - EUR/GBP/GEL/USD")
+    public String getCurrenciesRawTextForSystem(String systemName) {
+        // 1. ვპოულობთ ყველა ბარათს (tbcx-pw-card)
+        // 2. ვფილტრავთ იმ ბარათს, რომელშიც წერია ჩვენი სისტემის სახელი (მაგ. IntelExpress)
+        // 3. ამ კონკრეტულ ბარათში ვპოულობთ კაპშონს (tbcx-pw-card__caption) და ვიღებთ მის ტექსტს
+        return page.locator("tbcx-pw-card")
+                .filter(new Locator.FilterOptions().setHasText(systemName))
+                .locator(".tbcx-pw-card__caption")
+                .innerText();
+    }
 
     public MoneyTransferPage(Page page) {
         this.page = page;
@@ -39,7 +55,7 @@ public class MoneyTransferPage {
     // --- Action მეთოდები ---
 
     public void navigateTo(String url) {
-        page.navigate(url);
+        page.navigate(Constants.MONEY_TRANSFER_URL);
     }
 
     public void acceptCookiesIfPresent() {

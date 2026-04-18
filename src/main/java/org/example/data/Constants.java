@@ -80,5 +80,20 @@ public static final String IPHONE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone 
     public static final Pattern PARTNER_OFFERS_PATTERN = Pattern.compile(" პარტნიორების შეთავაზება | Partner Offers", Pattern.CASE_INSENSITIVE);
     public static final Pattern NOT_FOUND_PATTERN = Pattern.compile(" შეთავაზებები არ მოიძებნა | Offer wasn't found ", Pattern.CASE_INSENSITIVE);
 
+
+                                      //----API Test -----
+    //----API Endpoint
+public static final String MONEY_TRANSFER_SYSTEMS_ENDPOINT = "https://apigw.tbcbank.ge/api/v1/moneyTransfer/systems?locale=ka-GE";
+
+    // Status Codes
+    public static final int HTTP_STATUS_OK = 200;
+
+    // Headers
+    public static final String ACCEPT_JSON = "application/json, text/plain, */*";
+    public static final String ACCEPT_LANGUAGE_KA = "ka,en-US;q=0.9,en;q=0.8";
+
+    // Patterns for Assertions
+    public static final Pattern IMAGE_URL_PATTERN = Pattern.compile("^/fi-console/images/mts/.*\\.jpg$");
+    public static final Pattern SYSTEM_NAME_PATTERN = Pattern.compile("^[a-zA-Z]+$");
 }
 

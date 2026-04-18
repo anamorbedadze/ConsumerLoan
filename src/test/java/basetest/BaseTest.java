@@ -15,16 +15,25 @@ public class BaseTest {
     protected static Browser browser;
     protected static BrowserContext context;
     protected static Page page;
+    protected APIRequestContext request; //ახალი ცვლადი API-სთვის
     // აქ მოგვიანებით დავამატებთ Steps კლასებს
 
     @BeforeClass
-    public static void setUp() {
+    public void setUp() {
+        // 1. ვქმნით Playwright-ის ობიექტს
         playwright = Playwright.create();
+
+        // 2. [UI ინიციალიზაცია] - ბრაუზერის და გვერდის გაშვება (გაერთიანებული)
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                 .setHeadless(false)
                 .setSlowMo(Constants.SLOW_MO_DEFAULT)
-                .setArgs(List.of("--start-maximized")));
+                .setArgs(List.of("--start-maximized"))
+        );
 
+        // 3. [API ინიციალიზაცია] - API კონტექსტის შექმნა
+        request = playwright.request().newContext(new APIRequest.NewContextOptions()
+                .setIgnoreHTTPSErrors(true)
+        );
     }
 
     @BeforeMethod
@@ -56,16 +65,30 @@ public class BaseTest {
 
     @AfterMethod
     public void closeContext() {
-            if (page != null) page.close();
-            if (context != null) context.close();
-        }
+        if (page != null) page.close();
+        if (context != null) context.close();
+    }
 
     @AfterClass
-    public static void tearDown() {
-            if (browser != null) browser.close();
-            if (playwright != null) playwright.close();
+    public void tearDown() {
+        if (request != null) {
+            request.dispose();
+
+            // 1. 🟢 [API დასუფთავება] - მეხსიერების გათავისუფლება
+            if (browser != null) {
+                browser.close();
+            }
+
+            // 2. [UI დასუფთავება] - ბრაუზერის და გვერდის დახურვა
+            if (page != null) {
+                page.close();
+            }
+            if (browser != null) {
+                browser.close();
+            }
         }
     }
+}
     // აქ მოხდება Steps-ების ინიციალიზაცია, მაგალითად: homeSteps = new HomePageSteps(page);
 //ბეისტესტი მობაილისთვის თუ შემიძლია აქვე ჩავსვავ როცა ბოლო სთეფზე მივალ
 
