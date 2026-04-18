@@ -15,6 +15,7 @@ public class Constants {
     public static final String OFFER_DET_PAGE_URL = "https://tbcbank.ge/ka/offers/all-offers/1o8WOB94RBAZVUFk2uqi5l/extra-offer";
     public static final String OFFER_LIST_URL = "https://tbcbank.ge/ka/offers/all-offers";
     public static final String LOCATION_URL = "https://tbcbank.ge/ka/atms&branches";
+    public static final String Treasury_Rate_URL= "https://tbcbank.ge/ka/treasury-products";
     public static final String GEO_LANG = "ქარ";
     public static final String ENG = "Eng";
 
@@ -83,7 +84,8 @@ public static final String IPHONE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone 
 
                                       //----API Test -----
     //----API Endpoint
-public static final String MONEY_TRANSFER_SYSTEMS_ENDPOINT = "https://apigw.tbcbank.ge/api/v1/moneyTransfer/systems?locale=ka-GE";
+    public static final String MONEY_TRANSFER_SYSTEMS_ENDPOINT = "https://apigw.tbcbank.ge/api/v1/moneyTransfer/systems?locale=ka-GE";
+    public static final String TREASURY_RATES_ENDPOINT = "https://apigw.tbcbank.ge/api/v1/forwardRates/getForwardRates?locale=ka-GE";
 
     // Status Codes
     public static final int HTTP_STATUS_OK = 200;
